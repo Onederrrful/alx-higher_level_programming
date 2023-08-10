@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Check if the $PYCODE environment variable is set
+if [ -z "$PYCODE" ]; then
+    echo "Error: Environment variable \$PYCODE is not set."
+    exit 1
+fi
+
+# Create a temporary Python file
+TMP_PYFILE=$(mktemp)
+echo "$PYCODE" > "$TMP_PYFILE"
+
+# Check the Betty style for the temporary Python file
+betty-style.pl "$TMP_PYFILE"
+if [ $? -ne 0 ]; then
+    echo "Error: Python code does not follow Betty style."
+    exit 1
+fi
+
+# Check the Betty documentation for the temporary Python file
+betty-doc.pl "$TMP_PYFILE"
+if [ $? -ne 0 ]; then
+    echo "Error: Python code documentation does not follow Betty style."
+    exit 1
+fi
+
+# Run the Python script
+python3 "$TMP_PYFILE"
+
+# Remove the temporary Python file
+rm "$TMP_PYFILE"
+
